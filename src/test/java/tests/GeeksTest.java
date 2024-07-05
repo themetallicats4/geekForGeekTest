@@ -1,6 +1,8 @@
 package tests;
 
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
+import org.openqa.selenium.interactions.Actions;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -9,9 +11,14 @@ import utilities.ConfigReader;
 import utilities.Driver;
 import utilities.ReusableMethods;
 
+import java.io.IOException;
+
+import static utilities.Driver.driver;
+
 public class GeeksTest {
 
     GeeksPage geeksPage = new GeeksPage();
+    String mainPageWH = driver.getWindowHandle();
 
     @Test
     public void geeksSearchTest() {
@@ -74,7 +81,52 @@ public class GeeksTest {
         geeksPage.firstArticle.click();
         ReusableMethods.bekle(1);
 //        The user validates the article header contains topic title.
+        // String keywordToValidate = geeksPage.firstArticle.getText();
+        //S tring titleToCheck = geeksPage.articleTitle.getText();
+
+        // Assert.assertTrue(titleToCheck.contains(keywordToValidate));
 //        The user verifies table of content appears.
+
+        String newPageTitle = "Introduction to Tree Data Structure - GeeksforGeeks";
+        ReusableMethods.titleIleWindowDegistir(newPageTitle, driver);
+
+        JavascriptExecutor js = (JavascriptExecutor) Driver.getDriver();
+        js.executeScript("arguments[0].scrollIntoView();", geeksPage.tableOfContent);
+
+        ReusableMethods.bekle(2);
+        Assert.assertTrue(geeksPage.tableOfContent.isDisplayed());
+    }
+
+    @Test
+    public void geeksPositiveSignUpTest() throws IOException {
+//        The user navigates to GeeksforGeeks.org
+        Driver.getDriver().get(ConfigReader.getProperty("ggUrl"));
+//        The user clicks the Sign In button.
+        geeksPage.signInButton.click();
+        ReusableMethods.bekle(1);
+//        The user clicks Sign Up tab.
+        geeksPage.signUpTab.click();
+//        The user types in email, password and institution information.≈
+        geeksPage.emailField.sendKeys(ConfigReader.getProperty("validEmail"));
+        geeksPage.passwordField.sendKeys(ConfigReader.getProperty("validPass"));
+        geeksPage.organizationsField.sendKeys(ConfigReader.getProperty("validInstitute"));
+        ReusableMethods.bekle(1);
+        geeksPage.firstOption.click();
+
+        // The user takes screenshot.
+        ReusableMethods.getScreenshot("signUp");
+//        The user clicks recaptcha.
+        driver.switchTo().frame(0);
+        geeksPage.reCaptcha.click();
+        driver.switchTo().defaultContent();
+        ReusableMethods.bekle(2);
+//        The user submits the info by clicking Sign Up button.
+        geeksPage.signUpSubmitButton.click();
+        ReusableMethods.bekle(1);
+//        The user validates submission.
+        Assert.assertTrue(geeksPage.afterSignUpAlert.isDisplayed());
+
+
     }
 
 
